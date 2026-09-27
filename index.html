@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS Demo — Local Voice Agent</title>
+<meta name="description" content="A free, multilingual, local-first AI chatbot and advanced voice agent for Windows. It replies out loud in your own language — English, Italian, Spanish, French, Portuguese, Hindi — running entirely on your machine. No account, no cloud.">
+<meta property="og:title" content="JARVIS Demo — Local Voice Agent">
+<meta property="og:description" content="A free, multilingual AI chatbot and advanced voice mode that runs entirely on your own computer. Speaks your language. No account, no cloud.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060a12;
+    --bg-2:#0b111d;
+    --panel:rgba(255,255,255,.035);
+    --panel-brd:rgba(140,190,255,.16);
+    --ink:#eef4fb;
+    --muted:#9db2cc;
+    --faint:#748399;
+    --blue:#1e88e5;
+    --blue-2:#4ea3f0;
+    --blue-soft:rgba(30,136,229,.14);
+    --glow:rgba(56,150,240,.55);
+    --ok:#34d399;
+    --maxw:1080px;
+    --radius:16px;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--blue-2);margin:0 0 14px}
+  h1,h2,h3{line-height:1.15;text-wrap:balance;margin:0}
+  .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:500;font-size:.95rem;padding:14px 22px;border-radius:12px;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:.18s ease}
+  .btn-primary{background:linear-gradient(180deg,var(--blue-2),var(--blue));color:#04101f;box-shadow:0 8px 30px -8px var(--glow)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 40px -8px var(--glow)}
+  .btn-ghost{border-color:var(--panel-brd);color:var(--ink);background:var(--panel)}
+  .btn-ghost:hover{border-color:var(--blue);color:var(--blue-2)}
+
+  header.nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);background:rgba(6,10,18,.72);border-bottom:1px solid rgba(255,255,255,.05)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{font-family:var(--mono);font-weight:600;letter-spacing:.18em;font-size:.95rem}
+  .brand b{color:var(--blue-2)}
+  .nav-links{display:flex;gap:26px;font-size:.9rem;color:var(--muted)}
+  .nav-links a{text-decoration:none}
+  .nav-links a:hover{color:var(--blue-2)}
+  @media(max-width:720px){.nav-links{display:none}}
+
+  .hero{position:relative;padding:96px 0 40px;text-align:center;isolation:isolate}
+  .hero::before{content:"";position:absolute;inset:-20% 0 auto 50%;translate:-50% 0;width:900px;height:900px;max-width:130vw;z-index:-1;background:radial-gradient(circle at 50% 35%,var(--glow),transparent 55%);filter:blur(20px);opacity:.5;pointer-events:none}
+  .hero h1{font-size:clamp(2.4rem,6vw,4.2rem);font-weight:700;letter-spacing:-.01em}
+  .hero h1 .grad{background:linear-gradient(120deg,#fff,var(--blue-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{max-width:660px;margin:22px auto 0;color:var(--muted);font-size:clamp(1rem,2.2vw,1.18rem)}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+  .cta-note{margin-top:14px;font-family:var(--mono);font-size:.76rem;color:var(--faint)}
+  .langs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+  .lang{font-family:var(--mono);font-size:.8rem;letter-spacing:.04em;color:var(--muted);border:1px solid var(--panel-brd);background:var(--panel);border-radius:999px;padding:8px 14px}
+
+  .shots{padding:56px 0}
+  .shots-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:820px){.shots-grid{grid-template-columns:1fr}}
+  .shot{border:1px solid var(--panel-brd);border-radius:var(--radius);overflow:hidden;background:var(--bg-2);box-shadow:0 30px 60px -30px rgba(0,0,0,.85)}
+  .shot img{display:block;width:100%;height:auto}
+  .shot figcaption{font-family:var(--mono);font-size:.78rem;color:var(--muted);padding:12px 16px;border-top:1px solid rgba(255,255,255,.05)}
+  .shot figcaption b{color:var(--blue-2);font-weight:500}
+
+  section{padding:64px 0}
+  .sec-head{text-align:center;max-width:640px;margin:0 auto 44px}
+  .sec-head h2{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:700}
+  .sec-head p{color:var(--muted);margin-top:12px}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:820px){.features{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.features{grid-template-columns:1fr}}
+  .card{border:1px solid var(--panel-brd);background:var(--panel);border-radius:var(--radius);padding:24px;transition:.18s}
+  .card:hover{border-color:var(--blue);transform:translateY(-3px)}
+  .card .ic{font-size:1.5rem}
+  .card h3{font-size:1.05rem;margin:14px 0 8px}
+  .card p{color:var(--muted);font-size:.93rem;margin:0}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}
+  @media(max-width:820px){.steps{grid-template-columns:1fr}}
+  .step{border:1px solid var(--panel-brd);background:var(--panel);border-radius:var(--radius);padding:26px;position:relative}
+  .step::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:.9rem;color:var(--blue-2)}
+  .step h3{font-size:1.05rem;margin:10px 0 8px}
+  .step p{color:var(--muted);font-size:.93rem;margin:0}
+  .step code{font-family:var(--mono);font-size:.85rem;background:rgba(0,0,0,.4);border:1px solid var(--panel-brd);padding:2px 7px;border-radius:6px;color:var(--blue-2)}
+
+  .reqs{max-width:760px;margin:0 auto;border:1px solid var(--panel-brd);border-radius:var(--radius);overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05)}
+  thead th{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);background:var(--panel)}
+  tbody td:first-child{font-weight:600}
+  tbody tr:last-child td{border-bottom:none}
+  td .rec{color:var(--blue-2)}
+
+  .privacy{background:linear-gradient(180deg,transparent,var(--blue-soft));border-top:1px solid var(--panel-brd);border-bottom:1px solid var(--panel-brd)}
+  .privacy .sec-head{margin-bottom:0}
+  .privacy ul{list-style:none;padding:0;margin:18px 0 0;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+  .privacy li{border:1px solid var(--panel-brd);border-radius:999px;padding:8px 14px}
+  .privacy li::before{content:"✓ ";color:var(--ok)}
+
+  .final{text-align:center}
+  .final h2{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:700}
+  .final p{color:var(--muted);max-width:520px;margin:14px auto 0}
+
+  footer{border-top:1px solid rgba(255,255,255,.06);padding:40px 0;color:var(--faint);font-size:.85rem}
+  .foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+  .foot-links{display:flex;gap:22px;flex-wrap:wrap}
+  .foot-links a{text-decoration:none;color:var(--muted)}
+  .foot-links a:hover{color:var(--blue-2)}
+  .foot-note{font-family:var(--mono);font-size:.75rem;max-width:520px}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <div class="brand">J<b>.</b>A<b>.</b>R<b>.</b>V<b>.</b>I<b>.</b>S<b>.</b> <span style="color:var(--faint)">DEMO</span></div>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#requirements">Requirements</a>
+      <a href="https://github.com/Alex-Stark-industries/JARVIS-Demo">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Free · Unlimited · 100% local</p>
+      <h1>An AI that <span class="grad">speaks your language</span>,<br>running on your machine</h1>
+      <p class="lede">A free chatbot and advanced voice mode for Windows. Write or speak in your
+        language — Jarvis replies in text and out loud, in that same language, with a native
+        voice and his trademark dry wit. No account, no API key, no cloud, no telemetry.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/Alex-Stark-industries/JARVIS-Demo/releases/latest">⬇ Download for Windows</a>
+        <a class="btn btn-ghost" href="#how">How it works</a>
+      </div>
+      <p class="cta-note">Windows 10 / 11 · installer · requires the free <a href="https://ollama.com" style="color:var(--blue-2)">Ollama</a> engine</p>
+      <div class="langs">
+        <span class="lang">🇬🇧 English</span>
+        <span class="lang">🇮🇹 Italiano</span>
+        <span class="lang">🇪🇸 Español</span>
+        <span class="lang">🇫🇷 Français</span>
+        <span class="lang">🇧🇷 Português</span>
+        <span class="lang">🇮🇳 हिन्दी</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="shots" aria-label="Screenshots">
+    <div class="wrap shots-grid">
+      <figure class="shot">
+        <img src="docs/screenshots/chat.png" alt="JARVIS chat interface with the neural core and a streamed reply" loading="lazy" width="2560" height="1600">
+        <figcaption><b>Chat</b> — streamed replies from a local model, in your language.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="docs/screenshots/voice.png" alt="JARVIS advanced voice mode: a full-screen reactive particle sphere" loading="lazy" width="2560" height="1600">
+        <figcaption><b>Advanced voice mode</b> — a full-screen sphere with neural turn detection.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">What's inside</p>
+        <h2>Chat and advanced voice — in your language</h2>
+        <p>This demo keeps two things from the full Jarvis assistant: the chat and the advanced voice mode. Nothing else, nothing to pay.</p>
+      </div>
+      <div class="features">
+        <div class="card"><div class="ic">🌍</div><h3>Speaks your language</h3><p>Write in English, Italian, Spanish, French, Portuguese or Hindi — Jarvis detects it and replies out loud in that language, with a native voice. Fully local, no cloud translation.</p></div>
+        <div class="card"><div class="ic">💬</div><h3>Local chat</h3><p>A local language model via Ollama, streamed word by word as he replies.</p></div>
+        <div class="card"><div class="ic">🎙️</div><h3>Advanced voice mode</h3><p>A hands-free particle sphere with neural turn detection. Hold Space or tap the mic; he listens, thinks, and speaks back.</p></div>
+        <div class="card"><div class="ic">🎩</div><h3>Dry British wit</h3><p>A razor-witted butler with a deadpan sense of humour — the same character in every language.</p></div>
+        <div class="card"><div class="ic">🔊</div><h3>Five English voices</h3><p>Pick the English voice you like; other languages use their own native voice automatically.</p></div>
+        <div class="card"><div class="ic">🔒</div><h3>Private by design</h3><p>No accounts, no API keys, no telemetry. Your conversations and your voice stay on your computer.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Get started in minutes</p>
+        <h2>Three steps to talking with Jarvis</h2>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Install Ollama</h3><p>Install the free local AI engine from <a href="https://ollama.com" style="color:var(--blue-2)">ollama.com</a>, then pull the model once: <code>ollama pull qwen2.5:3b</code></p></div>
+        <div class="step"><h3>Download Jarvis</h3><p>Grab <code>JARVIS-Voice-Agent-Setup.exe</code> from the releases page. The installer is per-user — no admin rights needed.</p></div>
+        <div class="step"><h3>Run &amp; talk</h3><p>Launch Jarvis from the Start menu. Type in any supported language, or open voice mode and hold Space to speak.</p></div>
+      </div>
+      <div style="text-align:center;margin-top:34px">
+        <a class="btn btn-ghost" href="https://github.com/Alex-Stark-industries/JARVIS-Demo/blob/master/WELCOME.md">📖 Read the beginner guide</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="requirements">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Before you install</p>
+        <h2>System requirements</h2>
+        <p>Jarvis runs the AI and the voice on your own machine, so the experience depends on your PC. These are realistic minimums for the bundled model.</p>
+      </div>
+      <div class="reqs">
+        <table>
+          <thead><tr><th></th><th>Minimum</th><th>Recommended</th></tr></thead>
+          <tbody>
+            <tr><td>OS</td><td>Windows 10 / 11, 64-bit</td><td class="rec">Windows 11, 64-bit</td></tr>
+            <tr><td>CPU</td><td>Any modern 64-bit (x64)</td><td class="rec">Recent multi-core</td></tr>
+            <tr><td>RAM</td><td>8 GB</td><td class="rec">16 GB</td></tr>
+            <tr><td>Free disk</td><td>~4 GB</td><td class="rec">6 GB+</td></tr>
+            <tr><td>GPU</td><td>None (runs on CPU)</td><td class="rec">WebGPU-capable (NVIDIA / AMD / Intel)</td></tr>
+            <tr><td>Internet</td><td>Setup only</td><td class="rec">Offline after setup</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Local. Private. Yours.</p>
+        <h2>Nothing you say leaves your computer</h2>
+        <ul>
+          <li>No accounts</li>
+          <li>No API keys</li>
+          <li>No cloud</li>
+          <li>No telemetry</li>
+          <li>No auto-update</li>
+        </ul>
+        <p style="color:var(--muted);margin-top:22px">The model runs locally through Ollama and the voice runs on-device. The only network use is the one-time model downloads and your own prompts going to Ollama on your machine.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2>Ready to meet Jarvis?</h2>
+      <p>Free, unlimited, multilingual, and entirely yours. Download it, run it, and start talking.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/Alex-Stark-industries/JARVIS-Demo/releases/latest">⬇ Download for Windows</a>
+        <a class="btn btn-ghost" href="https://github.com/Alex-Stark-industries/JARVIS-Demo">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>
+      <div class="brand" style="margin-bottom:8px">J<b>.</b>A<b>.</b>R<b>.</b>V<b>.</b>I<b>.</b>S<b>.</b> Demo</div>
+      <p class="foot-note">A free taste of the larger Jarvis desktop assistant — a separate, proprietary application.</p>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/Alex-Stark-industries/JARVIS-Demo#readme">Overview</a>
+      <a href="https://github.com/Alex-Stark-industries/JARVIS-Demo/blob/master/WELCOME.md">Guide</a>
+      <a href="https://github.com/Alex-Stark-industries/JARVIS-Demo/releases/latest">Download</a>
+      <a href="https://github.com/Alex-Stark-industries/JARVIS-Demo/blob/master/LICENSE">License (MIT)</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
