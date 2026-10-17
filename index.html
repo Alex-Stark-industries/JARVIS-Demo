@@ -69,6 +69,9 @@
   .shot img{display:block;width:100%;height:auto}
   .shot figcaption{font-family:var(--mono);font-size:.78rem;color:var(--muted);padding:12px 16px;border-top:1px solid rgba(255,255,255,.05)}
   .shot figcaption b{color:var(--blue-2);font-weight:500}
+  .demo{padding:24px 0 8px}
+  .demo .shot{max-width:960px;margin:0 auto}
+  .demo video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#000}
 
   section{padding:64px 0}
   .sec-head{text-align:center;max-width:640px;margin:0 auto 44px}
@@ -153,6 +156,18 @@
         <span class="lang">🇧🇷 Português</span>
         <span class="lang">🇮🇳 हिन्दी</span>
       </div>
+    </div>
+  </section>
+
+  <section class="demo" aria-label="Demo video">
+    <div class="wrap">
+      <figure class="shot">
+        <video controls preload="metadata" playsinline poster="docs/screenshots/voice.png">
+          <source src="docs/media/JARVIS-Presentation-4K.mp4" type="video/mp4">
+          Your browser cannot play embedded video. <a href="docs/media/JARVIS-Presentation-4K.mp4">Download the demo video</a>.
+        </video>
+        <figcaption><b>Watch the demo</b> — JARVIS in action.</figcaption>
+      </figure>
     </div>
   </section>
 
